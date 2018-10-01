@@ -1,0 +1,145 @@
+CREATE TABLE PAYES_BACK.TB_AUTH_GRP_MENU
+    (
+    MENU_CD                         VARCHAR2(10 BYTE) NOT NULL,
+    AUTH_GRP_CD                     VARCHAR2(20 BYTE) NOT NULL,
+    ENT_DTTM                        TIMESTAMP(6),
+    UPT_USER_ID                     VARCHAR2(20 BYTE),
+    SITE_GB_CD                      VARCHAR2(20 BYTE) NOT NULL
+    );
+    
+CREATE TABLE PAYES_BACK.TB_CODE
+    (
+    CODE                            VARCHAR2(20 BYTE) NOT NULL,
+    CODE_NM                         VARCHAR2(200 BYTE),
+    CODE_GRP_CD                     VARCHAR2(20 BYTE) NOT NULL,
+    CODE_GRP_NM                     VARCHAR2(50 BYTE),
+    RMKS                            VARCHAR2(1000 BYTE),
+    ORD_NO                          NUMBER,
+    ENT_DTTM                        TIMESTAMP(6),
+    UPT_DTTM                        TIMESTAMP(6),
+    UPT_USER_ID                     VARCHAR2(20 BYTE),
+    VIEW_YN                         CHAR(1 BYTE),
+    USE_YN                          CHAR(1 BYTE)
+    );
+    
+CREATE TABLE PAYES_BACK.TB_FI_ORG
+    (
+    FI_ORG_CD                       CHAR(6 BYTE) NOT NULL,
+    FI_ORG_NM                       VARCHAR2(30 BYTE),
+    FI_ORG_GRP_CD                   VARCHAR2(220 BYTE),
+    ENT_DTTM                        TIMESTAMP(6),
+    USE_YN                          CHAR(1 BYTE),
+    CONT_HP_NO                      VARCHAR2(64 BYTE),
+    CONT_EMAIL                      VARCHAR2(224 BYTE),
+    ADJ_NM                          VARCHAR2(30 BYTE),
+    ADJ_TEL_NO                      VARCHAR2(64 BYTE),
+    ADJ_HP_NO                       VARCHAR2(64 BYTE),
+    ADJ_EMAIL                       VARCHAR2(224 BYTE),
+    BIZ_NO                          VARCHAR2(10 BYTE),
+    REP_MN_NM                       VARCHAR2(30 BYTE),
+    ZIP_NO                          VARCHAR2(7 BYTE),
+    ADDR1                           VARCHAR2(100 BYTE),
+    ADDR2                           VARCHAR2(100 BYTE),
+    MNBR_GB                         VARCHAR2(20 BYTE),
+    CONT_NM                         VARCHAR2(30 BYTE),
+    CONT_TEL_NO                     VARCHAR2(64 BYTE),
+    CONT_FAX_NO                     VARCHAR2(30 BYTE),
+    UPT_DTTM                        TIMESTAMP(6),
+    UPT_USER_ID                     VARCHAR2(20 BYTE),
+    ADJ_FAX_NO                      VARCHAR2(30 BYTE),
+    LN_TR_BASE_TRMS                 VARCHAR2(200 BYTE),
+    INDV_OFFR_INQ_ARG_TRMS          LONG,
+    FI_ORG_IMG                      VARCHAR2(200 BYTE),
+    RCMD_GD_VIEW_YN                 CHAR(1 BYTE),
+    CALL_CNTR_NO                    VARCHAR2(32 BYTE),
+    RJCT_RSN_NOTI_YN                CHAR(1 BYTE),
+    GD_MLT_ABV_VIEW_YN              CHAR(1 BYTE),
+    BR_URL                          VARCHAR2(300 BYTE),
+    HOME_PAGE_VIEW_YN               CHAR(1 BYTE)
+    );
+    
+    
+CREATE TABLE PAYES_BACK.TB_MENU
+    (
+    MENU_CD                         VARCHAR2(10 BYTE) NOT NULL,
+    MENU_NM                         VARCHAR2(50 BYTE),
+    MENU_TP                         VARCHAR2(20 BYTE),
+    MENU_URL                        VARCHAR2(250 BYTE),
+    USE_YN                          VARCHAR2(1 BYTE),
+    ENT_DTTM                        DATE,
+    UPT_DTTM                        DATE,
+    UPT_USER_ID                     VARCHAR2(20 BYTE),
+    MENU_PRNT_CD                    VARCHAR2(10 BYTE),
+    MENU_ORD                        NUMBER(2),
+    VIEW_YN                         VARCHAR2(1 BYTE),
+    SITE_GB_CD                      VARCHAR2(20 BYTE) NOT NULL
+    );
+    
+CREATE TABLE PAYES_BACK.TB_USER
+    (
+    USER_ID                         VARCHAR2(20 BYTE) NOT NULL,
+    USER_PSWD                       VARCHAR2(64 BYTE),
+    USER_GB_CD                      VARCHAR2(20 BYTE),
+    FI_ORG_CD                       VARCHAR2(6 BYTE),
+    ENT_DTTM                        DATE,
+    UPT_DTTM                        DATE,
+    LST_CNCT_DTTM                   DATE,
+    LST_CNCT_IP                     VARCHAR2(30 BYTE),
+    AUTH_GRP_CD                     VARCHAR2(20 BYTE),
+    USE_YN                          VARCHAR2(1 BYTE),
+    DEPT_CD                         VARCHAR2(20 BYTE) NOT NULL,
+    USER_NM                         VARCHAR2(20 BYTE),
+    INCO_DT                         VARCHAR2(8 BYTE),
+    TEL_NO                          VARCHAR2(32 BYTE),
+    UPT_USER_ID                     VARCHAR2(20 BYTE),
+    EMAIL                           VARCHAR2(224 BYTE),
+    UI_THEME                        VARCHAR2(20 BYTE),
+    POS                             VARCHAR2(20 BYTE),
+    SITE_GB_CD                      VARCHAR2(20 BYTE)
+  );
+  
+CREATE TABLE PAYES_BACK.TB_USER_CNCT_IP
+    (
+    USER_ID                         VARCHAR2(20 BYTE),
+    CNCT_IP_SQ                      NUMBER NOT NULL,
+    IP                              VARCHAR2(20 BYTE),
+    ENT_DTTM                        DATE,
+    UPT_DTTM                        DATE,
+    UPT_USER_ID                     VARCHAR2(20 BYTE)
+    );
+    
+CREATE TABLE PAYES_BACK.TB_USER_CNCT_LOG
+    (
+    USER_ID                         VARCHAR2(20 BYTE),
+    CNCT_LOG_SQ                     NUMBER NOT NULL,
+    IP                              VARCHAR2(20 BYTE),
+    CNCT_SCS_YN                     VARCHAR2(1 BYTE),
+    CNCT_CNTN                       VARCHAR2(200 BYTE),
+    ENT_DTTM                        DATE
+    );
+    
+ CREATE TABLE PAYES_BACK.TB_USER_MENU
+    (
+    USER_ID                         VARCHAR2(20 BYTE) NOT NULL,
+    USER_MENU_SQ                    NUMBER NOT NULL,
+    SITE_GB_CD                      VARCHAR2(20 BYTE),
+    MENU_CD                         VARCHAR2(20 BYTE),
+    URL                             VARCHAR2(300 BYTE),
+    TIT                             VARCHAR2(200 BYTE),
+    ENT_DTTM                        DATE
+    );
+    
+ CREATE TABLE PAYES_BACK.TB_USER_TP_AUTH_GRP
+    (
+    USER_ID                         VARCHAR2(20 BYTE) NOT NULL,
+    AUTH_GRP_CD                     VARCHAR2(20 BYTE) NOT NULL,
+    STR_DTTM                        DATE,
+    END_DTTM                        DATE,
+    UPT_USER_ID                     VARCHAR2(20 BYTE),
+    ENT_DTTM                        DATE
+    );
+    
+
+  
+  
+  
