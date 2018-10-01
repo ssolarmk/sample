@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.owra.web.example.mapper.LoginMapper">
+    <select id="getUserRetrieve" parameterType="hashMap" resultType="com.owra.web.example.domain.common.SessionVO">
+		SELECT T1.USER_ID AS "user_id"
+			 , T1.USER_NM AS "user_name"
+			 , T1.UPT_USER_ID AS "update_user_id"
+			 , T1.ENT_DTTM AS "insert_dttm"
+			 , T1.LST_CNCT_DTTM AS "last_login_dttm"
+			 , T1.UPT_DTTM AS "update_dttm"
+			 , T1.USE_YN AS "user_yn"
+		  FROM TB_USER T1
+		 WHERE T1.USER_ID = #{user_id} AND T1.USE_YN='Y'
+		   AND T1.USER_PSWD = #{user_pswd, jdbcType=VARCHAR} 
+	</select>
+    <select id="getUserGrpRetrieve" parameterType="hashMap" resultType="string">
+	    SELECT B.AUTH_GRP_CD
+	      FROM TB_USER A INNER JOIN TB_USER_TP_AUTH_GRP B
+	      						 ON B.USER_ID = A.USER_ID
+			 			 INNER JOIN TB_AUTH_GRP_MENU C
+								 ON C.AUTH_GRP_CD = B.AUTH_GRP_CD
+								AND C.SITE_GB_CD = 'SG0001'
+	 	 WHERE A.USER_ID = #{user_id}
+		   AND A.USE_YN = 'Y'
+		   AND TO_DATE( SYSDATE, 'YYYY-MM-DD HH24:MI:SS') BETWEEN TO_DATE( B.STR_DTTM, 'YYYY-MM-DD HH24:MI:SS') AND TO_DATE( B.END_DTTM, 'YYYY-MM-DD HH24:MI:SS')
+	  GROUP BY B.AUTH_GRP_CD
+	</select>
+	<insert id="createloginHist" parameterType="java.util.HashMap">
+		INSERT 
+		  INTO TB_USER_CNCT_LOG(  CNCT_LOG_SQ,
+		  						  USER_ID,
+					              IP,
+					              CNCT_SCS_YN,
+					              ENT_DTTM	)
+		VALUES ( CNCT_LOG_SQ_SEQ.NEXTVAL,
+				 #{user_id, jdbcType=VARCHAR},
+				 #{ip, jdbcType=VARCHAR},
+				 #{cnct_scs_yn, jdbcType=VARCHAR},
+				 SYSDATE )
+	</insert>
+	<select id="getMenuRetrieve" parameterType="com.owra.web.example.domain.common.SessionVO" resultType="java.util.HashMap">
+		SELECT X.top_menu_id     AS "top_menu_id"
+		     , X.top_menu_name   AS "top_menu_name"
+		     , X.top_menu_type   AS "top_menu_type"
+		     , X.top_menu_url    AS "top_menu_url"
+		     , TRIM(X.view_yn1)  AS "view_yn1"
+		     , X.menu_ord1       AS "menu_ord1"
+		     , X.left1_menu_id   AS "left1_menu_id"
+		     , X.left1_menu_name AS "left1_menu_name"
+		     , X.left1_menu_type AS "left1_menu_type"
+		     , X.left1_menu_url  AS "left1_menu_url"
+		     , TRIM(X.view_yn2)  AS "view_yn2"
+		     , X.menu_ord2       AS "menu_ord2"
+ 		  FROM (
+				SELECT A.MENU_CD top_menu_id
+				     , A.MENU_NM top_menu_name
+				     , A.MENU_TP top_menu_type
+				     , A.MENU_URL top_menu_url
+				     , A.VIEW_YN view_yn1
+				     , A.MENU_ORD menu_ord1
+				     , B.MENU_CD left1_menu_id
+				     , B.MENU_NM left1_menu_name
+				     , B.MENU_TP left1_menu_type
+				     , B.MENU_URL left1_menu_url
+				     , B.VIEW_YN view_yn2
+				     , B.MENU_ORD menu_ord2
+				  FROM TB_MENU A	
+				  LEFT JOIN TB_MENU B ON B.MENU_PRNT_CD = A.MENU_CD AND B.MENU_TP IN ('D', 'P') AND B.SITE_GB_CD = 'SG0001' AND B.USE_YN = 'Y' AND EXISTS (SELECT 'X' FROM TB_AUTH_GRP_MENU WHERE MENU_CD = B.MENU_CD AND SITE_GB_CD = 'SG0001' AND AUTH_GRP_CD IN <foreach item="item" index="index" collection="user_group" open="(" separator="," close=")">#{item}</foreach> )
+				 WHERE A.MENU_PRNT_CD = 'M'
+				   AND A.MENU_TP IN ('D', 'P')
+				   AND A.USE_YN = 'Y'
+				   AND A.SITE_GB_CD = 'SG0001'
+				   AND EXISTS (SELECT 'X' FROM TB_AUTH_GRP_MENU WHERE MENU_CD = A.MENU_CD AND SITE_GB_CD = 'SG0001' AND AUTH_GRP_CD IN <foreach item="item" index="index" collection="user_group" open="(" separator="," close=")">#{item}</foreach> )
+					ORDER BY A.MENU_ORD, B.MENU_ORD
+				   ) X
+		 ORDER BY X.menu_ord1, X.menu_ord2
+	</select>
+	<update id="lastLoginUpdate" parameterType="com.owra.web.example.domain.common.SessionVO">
+		UPDATE TB_USER
+     	   SET LST_CNCT_DTTM = SYSDATE
+   		 WHERE USER_ID = #{user_id}
+	</update>
+</mapper>

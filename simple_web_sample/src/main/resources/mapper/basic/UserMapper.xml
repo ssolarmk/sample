@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.owra.web.example.mapper.basic.UserMapper">
+
+	<select id="getUserListRetrieve" parameterType="hashMap" resultType="hashMap">
+		SELECT *
+		  FROM (
+				SELECT ROW_NUMBER ( ) OVER (ORDER BY 1) AS RNUM, T1.*
+				  FROM (
+						SELECT TS.USER_ID AS "usid"
+						     , TS.USER_NM AS "user_nm"
+						     , TS.FI_ORG_CD AS "fi_org_cd"
+						     , TO_CHAR(TS.ENT_DTTM, 'YYYY-MM-DD HH24:MI:SS') AS "ent_dttm"
+						     , TS.USE_YN AS "use_yn"
+						     , CASE TS.USE_YN WHEN 'Y' THEN '사용' WHEN 'N' THEN '미사용' ELSE NULL END AS "use_yn_nm"
+						     , TS.DEPT_CD AS "dept_cd"
+						     , TO_CHAR(TS.INCO_DT, 'YYYY-MM-DD HH24:MI:SS') AS "inco_dt"
+						     , TS.POS AS "pos_cd"
+						     , TFO.FI_ORG_NM AS "fi_org_nm"
+						     , (
+						       SELECT WM_CONCAT (AUTH_GRP_CD )
+						         FROM TB_USER_TP_AUTH_GRP
+						        WHERE USER_ID=TS.USER_ID
+						        GROUP BY TS.USER_ID
+						     ) AS "auth_grp_cd"
+						     , (
+						       SELECT WM_CONCAT (CODE_NM )
+						         FROM TB_CODE A
+						            , TB_USER_TP_AUTH_GRP B
+						        WHERE B.USER_ID = TS.USER_ID
+						          AND A.CODE= B.AUTH_GRP_CD
+						          AND CODE_GRP_CD='AUTH_GRP_CD'
+						          AND USE_YN='Y'
+						          AND CODE !='CODE'
+						        GROUP BY TS.USER_ID
+						     ) AS "auth_grp_cd_nm"
+						     , TS.EMAIL AS "email"
+						     , TS.TEL_NO AS "tel_no"
+						  FROM TB_USER TS 
+						  LEFT JOIN TB_FI_ORG TFO ON TFO.FI_ORG_CD=TS.FI_ORG_CD
+						 WHERE 1=1
+				 		 <if test="auth_gr_cnt != 0">
+						   AND TPA.AUTH_GRP_CD IN
+						   	<foreach item="item" index="index" collection="auth_gr" open="(" separator="," close=")">
+							      #{item}
+							</foreach>
+						 </if>
+						 <if test="srch_use_yn !='' and srch_use_yn !=null">
+						   AND TS.USE_YN = #{srch_use_yn}
+						 </if>
+						 <if test="srch_fi_org !='' and srch_fi_org !=null">
+						   AND TFO.FI_ORG_CD = #{srch_fi_org}
+						 </if>
+						 <if test="srch_fi_org_gr !='' and srch_fi_org_gr !=null">
+						   AND SUBSTR(TS.FI_ORG_CD,1,2) = #{srch_fi_org_gr}
+						 </if>
+						 	ORDER BY TS.ENT_DTTM DESC
+				  		) T1
+				  	WHERE ROWNUM &lt;= ${end}
+		  		) T2
+		  	WHERE RNUM &gt;= ${start}
+	</select>
+	<!-- 사용자리스트 총 갯수 -->
+	<select id="getUserListRetrieveCnt" parameterType="hashMap" resultType="int">
+		SELECT COUNT(*) cnt
+		  FROM (
+				SELECT TS.USER_ID AS "usid"
+				     , TS.USER_NM AS "user_nm"
+				     , TS.FI_ORG_CD AS "fi_org_cd"
+				     , TO_CHAR(TS.ENT_DTTM, 'YYYY-MM-DD HH24:MI:SS') AS "ent_dttm"
+				     , TS.USE_YN AS "use_yn"
+				     , CASE TS.USE_YN WHEN 'Y' THEN '사용' WHEN 'N' THEN '미사용' ELSE NULL END AS "use_yn_nm"
+				     , TS.DEPT_CD AS "dept_cd"
+				     , TO_CHAR(TS.INCO_DT, 'YYYY-MM-DD HH24:MI:SS') AS "inco_dt"
+				     , TS.POS AS "pos_cd"
+				     , TFO.FI_ORG_NM AS "fi_org_nm"
+				     , (
+				       SELECT WM_CONCAT (AUTH_GRP_CD )
+				         FROM TB_USER_TP_AUTH_GRP
+				        WHERE USER_ID=TS.USER_ID
+				        GROUP BY TS.USER_ID
+				     ) AS "auth_grp_cd"
+				     , (
+				       SELECT WM_CONCAT (CODE_NM )
+				         FROM TB_CODE A
+				            , TB_USER_TP_AUTH_GRP B
+				        WHERE B.USER_ID = TS.USER_ID
+				          AND A.CODE= B.AUTH_GRP_CD
+				          AND CODE_GRP_CD='AUTH_GRP_CD'
+				          AND USE_YN='Y'
+				          AND CODE !='CODE'
+				        GROUP BY TS.USER_ID
+				     ) AS "auth_grp_cd_nm"
+				     , TS.EMAIL AS "email"
+				     , TS.TEL_NO AS "tel_no"
+				  FROM TB_USER TS 
+				  LEFT JOIN TB_FI_ORG TFO ON TFO.FI_ORG_CD=TS.FI_ORG_CD
+				 WHERE 1=1
+		 		 <if test="auth_gr_cnt != 0">
+				   AND TPA.AUTH_GRP_CD IN
+				   	<foreach item="item" index="index" collection="auth_gr" open="(" separator="," close=")">
+					      #{item}
+					</foreach>
+				 </if>
+				 <if test="srch_use_yn !='' and srch_use_yn !=null">
+				   AND TS.USE_YN = #{srch_use_yn}
+				 </if>
+				 <if test="srch_fi_org !='' and srch_fi_org !=null">
+				   AND TFO.FI_ORG_CD = #{srch_fi_org}
+				 </if>
+				 <if test="srch_fi_org_gr !='' and srch_fi_org_gr !=null">
+				   AND SUBSTR(TS.FI_ORG_CD,1,2) = #{srch_fi_org_gr}
+				 </if>
+		  ) TB
+	</select>
+	<select id="getAuthGrpCdRetrieve" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT TO_CHAR(STR_DTTM,'YYYY-MM-DD HH24:MI:SS') AS "str_dttm"
+			 , TO_CHAR(END_DTTM,'YYYY-MM-DD HH24:MI:SS') AS "end_dttm"
+			 , AUTH_GRP_CD AS "auth_grp_cd"
+		  FROM TB_USER_TP_AUTH_GRP 
+		 WHERE USER_ID = #{usid}
+	  ORDER BY STR_DTTM DESC
+	</select>
+
+</mapper>

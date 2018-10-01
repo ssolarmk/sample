@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.owra.web.example.mapper.manage.MenuMapper">
+	<select id="getMenuTreeRetrieve" resultType="hashMap">
+		SELECT MENU_CD                                      AS "MENU_CD"
+		 	  , MENU_NM                                      AS "MENU_NM"
+		 	  , SITE_GB_CD                                   AS "SITE_GB_CD"
+		 	  , MENU_PRNT_CD                                 AS "MENU_PRNT_CD"
+		 	  , MENU_TP                                      AS "MENU_TP"
+		 	  , CASE MENU_TP WHEN 'R' THEN '루트'              
+							 WHEN 'P' THEN '화면'              
+							 WHEN 'D' THEN '디렉토리'            
+							 WHEN 'A' THEN '기능'              
+							 ELSE NULL END                   AS "MENU_TP_NM" 
+			  , MENU_URL                                     AS "MENU_URL"
+			  , TO_CHAR(MENU_ORD)                            AS "MENU_ORD"
+			  , TRIM(USE_YN)                                 AS "USE_YN"
+			  , CASE USE_YN WHEN 'Y' THEN '사용'               
+							WHEN 'N' THEN '미사용'              
+							ELSE NULL END                    AS "USE_YN_NM"
+			  , UPT_USER_ID                                  AS "UPT_USER_ID"
+			  , TRIM(VIEW_YN)                                AS "VIEW_YN"
+			  , TO_CHAR(UPT_DTTM, 'YYYY-MM-DD HH24:MI:SS')   AS "UPT_DTTM"
+		 FROM TB_MENU WHERE SITE_GB_CD='SG0001'
+		ORDER BY MENU_CD ASC, MENU_PRNT_CD ASC, MENU_ORD ASC
+	</select>
+	<select id="codelist"		parameterType="hashMap"	resultType="hashMap">
+	    SELECT MENU_CD AS "menu_cd", MENU_NM AS "menu"
+		FROM TB_MENU
+		WHERE SITE_GB_CD=#{SITE_GB_CD}
+	    AND USE_YN = 'Y'
+		ORDER BY MENU_CD
+	</select>
+	
+	<insert id="menuCreate"  parameterType="com.owra.web.example.domain.manage.MenuVO">
+		 INSERT INTO TB_MENU (
+			  MENU_CD
+			, SITE_GB_CD
+			, MENU_NM
+			, MENU_PRNT_CD
+			, MENU_TP
+			, MENU_URL
+			, MENU_ORD
+			, UPT_DTTM
+			, ENT_DTTM
+			, USE_YN
+			, VIEW_YN
+			, UPT_USER_ID
+			
+			) VALUES (
+			  #{menu_cd}
+			, #{site_gb_cd}
+			, #{menu_nm}
+			, #{menu_prnt_cd}
+			, #{menu_tp}
+			, #{menu_url}
+			, #{menu_ord}
+			, SYSDATE
+			, SYSDATE
+			, #{menu_use_yn}
+			, 'Y'
+			, #{upt_user_id}
+			) 
+	</insert>
+
+	<update id="menuUpdate"	parameterType="com.owra.web.example.domain.manage.MenuVO">
+		UPDATE TB_MENU
+		SET MENU_NM = #{menu_nm}
+		<if test="old_menu_cd != menu_cd">
+		  , MENU_CD = #{menu_cd}
+	    </if>
+		  , MENU_TP = #{menu_tp}
+		  , MENU_URL = #{menu_url}
+		  , MENU_ORD = #{menu_ord}
+		  , UPT_DTTM = SYSDATE
+		  , USE_YN = #{menu_use_yn}
+		  , UPT_USER_ID = #{upt_user_id}
+		WHERE MENU_CD = #{menu_cd} and SITE_GB_CD = #{site_gb_cd}
+	</update>
+	
+	<delete id="menuDelete" parameterType="com.owra.web.example.domain.manage.MenuVO">
+		DELETE 
+		FROM TB_MENU
+		WHERE  
+			SITE_GB_CD=#{site_gb_cd} 
+		AND 
+			MENU_CD=#{menu_cd} 
+	</delete>
+	
+	<select id="getMenuCount" parameterType="com.owra.web.example.domain.manage.MenuVO"  resultType="Int">
+		 SELECT COUNT(1) AS CNT 
+			FROM TB_MENU 
+			WHERE SITE_GB_CD=#{site_gb_cd} 
+			AND MENU_CD LIKE CONCAT(#{menu_cd}, '%%') 
+	</select>
+</mapper>

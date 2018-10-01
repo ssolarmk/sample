@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.owra.web.example.mapper.manage.PermissionMapper">
+	
+<select id="siteListMenu1" resultType="hashMap" parameterType="hashMap">
+		SELECT A.MENU_CD AS "id"
+			 , CASE WHEN A.MENU_PRNT_CD = 'ROOT' THEN '#' ELSE A.MENU_PRNT_CD END AS "parent"
+		     , A.MENU_NM AS "text"
+		     , A.MENU_TP AS "menuTp"
+		     , A.MENU_URL AS "url"
+		     <if test="auth_grp_cd != ''">
+		     , CASE WHEN B.MENU_CD IS NULL THEN 'false'  
+			        WHEN A.MENU_TP IN ('R','D') THEN 'false' 
+			   		ELSE CASE WHEN (SELECT COUNT(1) FROM TB_MENU WHERE MENU_CD LIKE CONCAT(A.MENU_CD,'%') AND MENU_CD != A.MENU_CD AND SITE_GB_CD = 'SG0001') > 0 THEN  'false' ELSE 'true' END
+			     END AS "status"
+		     </if>
+		     <if test="auth_grp_cd == ''">
+		     , 'false' AS "status"
+		     </if>
+		 FROM TB_MENU A
+         LEFT OUTER JOIN TB_AUTH_GRP_MENU B
+            ON B.MENU_CD = A.MENU_CD
+            AND B.SITE_GB_CD = A.SITE_GB_CD
+            <if test="auth_grp_cd != ''">
+            AND B.AUTH_GRP_CD = #{auth_grp_cd}
+            </if>
+		 WHERE A.SITE_GB_CD = 'SG0001'
+		ORDER BY A.MENU_CD ASC, A.MENU_PRNT_CD ASC, A.MENU_ORD ASC 
+	</select>
+	
+	<delete id="permissionDelete"  parameterType="com.owra.web.example.domain.manage.PermissionVO">
+		DELETE 
+		FROM TB_AUTH_GRP_MENU 
+		WHERE SITE_GB_CD = #{site_gb_cd}
+			AND AUTH_GRP_CD = #{auth_grp_cd}
+	</delete>
+
+	<insert id="permissionInsert" parameterType="com.owra.web.example.domain.manage.PermissionVO">
+		INSERT INTO TB_AUTH_GRP_MENU
+		(AUTH_GRP_CD, MENU_CD, SITE_GB_CD, ENT_DTTM, UPT_USER_ID) 
+    	VALUES(#{auth_grp_cd}, #{menu_cd}, #{site_gb_cd}, SYSDATE, #{menu_cd})
+	</insert>
+	
+</mapper>

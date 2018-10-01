@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Implementation-Title: simple_web_sample
+Implementation-Version: 2.0.1.RELEASE
+Built-By: ssol_pc
+Implementation-Vendor-Id: com.owra.web
+Build-Jdk: 1.8.0_45
+Implementation-URL: https://projects.spring.io/spring-boot/#/spring-bo
+ ot-starter-parent/simple_web_sample
+Created-By: Maven Integration for Eclipse
+
